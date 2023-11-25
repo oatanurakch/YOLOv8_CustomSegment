@@ -5,7 +5,11 @@ import numpy as np
 # Initialize
 model = yolo('yolov8s-seg.pt')
 
+# video_path = r"E:\Work\TrimTestVideo.avi"
+# cap = cv2.VideoCapture(video_path)
+
 cap = cv2.VideoCapture(2, cv2.CAP_DSHOW)
+
 
 while cap.isOpened():
     ret, frame = cap.read()
