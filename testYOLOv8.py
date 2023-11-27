@@ -8,7 +8,7 @@ model = yolo('yolov8s-seg.pt')
 # video_path = r"E:\Work\TrimTestVideo.avi"
 # cap = cv2.VideoCapture(video_path)
 
-cap = cv2.VideoCapture(2, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 
 while cap.isOpened():
@@ -17,7 +17,7 @@ while cap.isOpened():
     # Check if frame is not empty
     if ret:
         # Inference
-        results = model(source = frame, conf = 0.7, save = False)
+        results = model.track(source = frame, conf = 0.7, save = False)
 
         # Check if there is any object detected
         if not len(results[0]):
