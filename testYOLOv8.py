@@ -26,11 +26,13 @@ count = 0
 x_pos_avg = 0
 y_pos_avg = 0
 
-ESP32_SER = Serial('/dev/ttyUSB0', 115200)
+ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
 ESP32_SER.setDTR(False)
 ESP32_SER.setRTS(True)
 
 inRange = False
+
+count_frame = 0
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -96,17 +98,22 @@ while cap.isOpened():
                                 count = 0
                                 inRange = True
 
-            # Draw text
+            
             if inRange:
                 cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
+                
+            else:
+                cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+            # Draw text
+            if count_frame == 10:
+                count_frame = 0
                 # Send data to ESP32
                 try:
                     print(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1')
                     ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
                 except:
                     print('Error send data to ESP32')
-            else:
-                cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
 
 
         # Display the frame
