@@ -10,10 +10,10 @@ model = yolo('yolov8s-seg.pt')
 # cap = cv2.VideoCapture(video_path)
 
 # Jetson Xavier NX with Realsense D435i
-# cap = cv2.VideoCapture(4)
+cap = cv2.VideoCapture(4)
 
 # PC or Laptop camera 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+# cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 # Variable for stored centroid
 x_centroid_arr = np.zeros(10)
@@ -34,8 +34,8 @@ y_pos_old = 0
 x_pos_new = 0
 y_pos_new = 0
 
-# ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
-ESP32_SER = Serial('COM3', 115200, timeout = 1)
+ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
+# ESP32_SER = Serial('COM3', 115200, timeout = 1)
 
 
 inRange = False
