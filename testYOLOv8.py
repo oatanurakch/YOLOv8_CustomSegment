@@ -48,7 +48,7 @@ while cap.isOpened():
     # Check if frame is not empty
     if ret:
         # Inference
-        results = model.track(source = frame, conf = 0.45, save = False)
+        results = model.track(source = frame, conf = 0.7, save = False)
 
         # Check if there is any object detected
         if not len(results[0]):
