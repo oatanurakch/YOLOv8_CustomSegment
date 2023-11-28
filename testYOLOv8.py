@@ -113,6 +113,7 @@ while cap.isOpened():
                     ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
                 except:
                     print('Error send data to ESP32')
+            count_frame += 1
 
 
 
