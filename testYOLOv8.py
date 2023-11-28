@@ -26,6 +26,14 @@ count = 0
 x_pos_avg = 0
 y_pos_avg = 0
 
+# Variable for stored old centroid
+x_pos_old = 0
+y_pos_old = 0
+
+# Variable for stored new centroid
+x_pos_new = 0
+y_pos_new = 0
+
 ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
 
 inRange = False
@@ -92,6 +100,10 @@ while cap.isOpened():
                                 x_pos_avg = (x_centroid_avg * (-0.0021)) + 0.7223
                                 # Calculate Y position from pixel to meter
                                 y_pos_avg = (y_centroid_avg * (0.0018)) - 0.7223
+                                # x and y pos new
+                                x_pos_new = x_pos_avg
+                                y_pos_new = y_pos_avg
+                                
                                 # Reset count
                                 count = 0
                                 inRange = True
@@ -107,8 +119,14 @@ while cap.isOpened():
                 count_frame = 0
                 # Send data to ESP32
                 try:
-                    print(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1')
-                    ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
+                    # Check if x and y pos new is not equal to x and y pos old
+                    if (x_pos_new != x_pos_old) or (y_pos_new != y_pos_old):
+                        x_pos_old = x_pos_new
+                        y_pos_old = y_pos_new
+                        print(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1')
+                        ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
+                    else:
+                        print('Same position !')
                 except:
                     print('Error send data to ESP32')
             count_frame += 1
