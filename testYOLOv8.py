@@ -27,8 +27,6 @@ x_pos_avg = 0
 y_pos_avg = 0
 
 ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
-ESP32_SER.setDTR(False)
-ESP32_SER.setRTS(True)
 
 inRange = False
 
