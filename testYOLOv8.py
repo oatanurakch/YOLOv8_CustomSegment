@@ -10,10 +10,10 @@ model = yolo('yolov8s-seg.pt')
 # cap = cv2.VideoCapture(video_path)
 
 # Jetson Xavier NX with Realsense D435i
-cap = cv2.VideoCapture(4)
+# cap = cv2.VideoCapture(4)
 
 # PC or Laptop camera 
-# cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 # Variable for stored centroid
 x_centroid_arr = np.zeros(10)
@@ -34,14 +34,17 @@ y_pos_old = 0
 x_pos_new = 0
 y_pos_new = 0
 
-ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
-# ESP32_SER = Serial('COM3', 115200, timeout = 1)
+# ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
+ESP32_SER = Serial('COM3', 115200, timeout = 1)
+
+count_frame = 0 
 
 while cap.isOpened():
     ret, frame = cap.read()
 
     # Check if frame is not empty
     if ret:
+        count_frame += 1
         # Inference
         results = model.track(source = frame, conf = 0.7, save = False)
         # Plotting the result
@@ -100,8 +103,8 @@ while cap.isOpened():
                             # Check if position is change
                             if (x_pos_new != x_pos_old and abs(x_pos_new - x_pos_old) < 0.02) or (y_pos_new != y_pos_old and abs(y_pos_new - y_pos_old) < 0.02):
                                 # Send position to ESP32
-                                ESP32_SER.write(f'mx{x_pos_avg:.2f},y{y_pos_avg:.2f}z-1\n'.encode())
-                                print(f'mx{x_pos_avg:.2f},y{y_pos_avg:.2f}z-1\n')
+                                # ESP32_SER.write(f'mx{x_pos_avg:.2f},y{y_pos_avg:.2f}z-1\n'.encode())
+                                # print(f'mx{x_pos_avg:.2f},y{y_pos_avg:.2f}z-1\n')
                                 # Update old position
                                 x_pos_old = x_pos_new
                                 y_pos_old = y_pos_new
@@ -109,6 +112,12 @@ while cap.isOpened():
                             cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
         except:
             pass
+
+        if count_frame == 20:
+            ESP32_SER.write(f'mx{x_pos_avg:.2f},y{y_pos_avg:.2f}z-1\n'.encode())
+            print(f'mx{x_pos_new:.2f},y{y_pos_new:.2f}z-1\n')
+            print('-----------------------------------------------------')
+            count_frame = 0
 
         # Display the frame
         cv2.imshow('YOLOv8', annotated_frame)
@@ -119,6 +128,7 @@ while cap.isOpened():
     else:
         # Break the loop if the end of the video is reached
         break
+    
 
 # Release the video capture object and close the display window
 cap.release()
