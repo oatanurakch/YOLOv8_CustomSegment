@@ -10,10 +10,10 @@ model = yolo('yolov8s-seg.pt')
 # cap = cv2.VideoCapture(video_path)
 
 # Jetson Xavier NX with Realsense D435i
-cap = cv2.VideoCapture(4)
+# cap = cv2.VideoCapture(4)
 
 # PC or Laptop camera 
-# cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 # Variable for stored centroid
 x_centroid_arr = np.zeros(10)
@@ -34,8 +34,8 @@ y_pos_old = 0
 x_pos_new = 0
 y_pos_new = 0
 
-ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
-# ESP32_SER = Serial('COM3', 115200, timeout = 1)
+# ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
+ESP32_SER = Serial('COM3', 115200, timeout = 1)
 
 
 inRange = False
@@ -64,7 +64,7 @@ while cap.isOpened():
                 # Get mask
                 mask = results[0].masks.xy
                 # IDS of the object
-                ids = results[0].boxes.id.cpu().numpy().astype(int)
+                ids = results[0].boxes.id.numpy().astype(int)
                 # IDs of class names
                 ids_cls = results[0].boxes.cls.numpy().astype(int)
                 for i in range(len(mask)):
@@ -118,8 +118,6 @@ while cap.isOpened():
                                 y_pos_old = y_pos_new
                         else:
                             cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-
-
 
         # Display the frame
         cv2.imshow('YOLOv8', annotated_frame)
