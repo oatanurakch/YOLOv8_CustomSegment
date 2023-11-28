@@ -35,6 +35,8 @@ x_pos_new = 0
 y_pos_new = 0
 
 ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
+# ESP32_SER = Serial('COM3', 115200, timeout = 1)
+
 
 inRange = False
 
@@ -103,33 +105,19 @@ while cap.isOpened():
                                 # x and y pos new
                                 x_pos_new = x_pos_avg
                                 y_pos_new = y_pos_avg
-                                
                                 # Reset count
                                 count = 0
-                                inRange = True
-
-            
-            if inRange:
-                cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
-                
-            else:
-                cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-            # Draw text
-            if count_frame == 10:
-                count_frame = 0
-                # Send data to ESP32
-                try:
-                    # Check if x and y pos new is not equal to x and y pos old
-                    if (x_pos_new != x_pos_old) or (y_pos_new != y_pos_old):
-                        x_pos_old = x_pos_new
-                        y_pos_old = y_pos_new
-                        print(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1')
-                        ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
-                    else:
-                        print('Same position !')
-                except:
-                    print('Error send data to ESP32')
-            count_frame += 1
+                            cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
+                            # Check if position is change
+                            if (x_pos_new != x_pos_old and x_pos_new - x_pos_old < 0.02) or (y_pos_new != y_pos_old and y_pos_new - y_pos_old < 0.02):
+                                # Send position to ESP32
+                                ESP32_SER.write(f'{x_pos_avg:.2f},{y_pos_avg:.2f}\n'.encode())
+                                print(f'x: {x_pos_avg:.2f}, y: {y_pos_avg:.2f}')
+                                # Update old position
+                                x_pos_old = x_pos_new
+                                y_pos_old = y_pos_new
+                        else:
+                            cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
 
 
