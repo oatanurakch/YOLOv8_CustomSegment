@@ -8,7 +8,7 @@ model = yolo('yolov8s-seg.pt')
 # video_path = r"E:\Work\TrimTestVideo.avi"
 # cap = cv2.VideoCapture(video_path)
 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(4)
 
 
 while cap.isOpened():
