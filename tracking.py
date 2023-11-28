@@ -10,7 +10,7 @@ model = yolo('yolov8s-seg.pt')
 # cap = cv2.VideoCapture(video_path)
 
 # Jetson Xavier NX with Realsense D435i
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(4)
 
 # Loop through the video frames
 while cap.isOpened():
