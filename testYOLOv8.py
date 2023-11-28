@@ -37,11 +37,6 @@ y_pos_new = 0
 ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
 # ESP32_SER = Serial('COM3', 115200, timeout = 1)
 
-
-inRange = False
-
-count_frame = 0
-
 while cap.isOpened():
     ret, frame = cap.read()
 
