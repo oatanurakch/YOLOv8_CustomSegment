@@ -34,6 +34,9 @@ y_pos_old = 0
 x_pos_new = 0
 y_pos_new = 0
 
+x_send_old = 0
+y_send_old = 0
+
 ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
 # ESP32_SER = Serial('COM3', 115200, timeout = 1)
 
@@ -114,9 +117,15 @@ while cap.isOpened():
             pass
 
         if count_frame == 20:
-            ESP32_SER.write(f'mx{x_pos_avg:.2f},y{y_pos_avg:.2f}z-1\n'.encode())
-            print(f'mx{x_pos_new:.2f},y{y_pos_new:.2f}z-1\n')
-            print('-----------------------------------------------------')
+            print(f'x: {x_pos_new:.2f}, y: {y_pos_new:.2f}')
+            print(f'x: {x_send_old:.2f}, y: {y_send_old:.2f}')
+            if (x_pos_new != x_send_old and abs(x_pos_new - x_send_old) > 0.02) or (y_pos_new != y_send_old and abs(y_pos_new - y_send_old) > 0.02):
+                x_send_old = x_pos_new
+                y_send_old = y_pos_new
+                # Send position to ESP32
+                ESP32_SER.write(f'mx{x_pos_new:.2f},y{y_pos_new:.2f}z-1\n'.encode())
+                print(f'mx{x_pos_new:.2f},y{y_pos_new:.2f}z-1\n')
+                print('-----------------------------------------------------')
             count_frame = 0
 
         # Display the frame
