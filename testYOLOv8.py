@@ -8,8 +8,22 @@ model = yolo('yolov8s-seg.pt')
 # video_path = r"E:\Work\TrimTestVideo.avi"
 # cap = cv2.VideoCapture(video_path)
 
+# Jetson Xavier NX with Realsense D435i
 cap = cv2.VideoCapture(4)
 
+# PC or Laptop camera 
+# cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
+# Variable for stored centroid
+x_centroid_arr = np.zeros(10)
+y_centroid_arr = np.zeros(10)
+
+# Variable for count centroid
+count = 0
+
+# Variable for store average centroid
+x_pos_avg = 0
+y_pos_avg = 0
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -58,12 +72,25 @@ while cap.isOpened():
                     cv2.circle(annotated_frame, (p_centroid[0], p_centroid[1]), 1, (255, 255, 255), 2)
                     # Calculate position of the point
                     if ids_cls[i] == 39:
-                        # Calculate X position from pixel to meter
-                        x_pos = (p_centroid[0] * (-0.0021)) + 0.7223
-                        # Calculate Y position from pixel to meter
-                        y_pos = (p_centroid[1] * (0.0018)) - 0.7223
-                        cv2.putText(annotated_frame, f'{x_pos:.2f}, {y_pos:.2f}', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-
+                        # Check position is in range
+                        if (p_centroid[0] >= 190 and p_centroid[0] <= 490) and (p_centroid[1] >= 220 and p_centroid[1] <= 400):
+                            count += 1
+                            # Append centroid to array for calculate average
+                            x_centroid_arr = np.append(x_centroid_arr[1:], p_centroid[0])
+                            y_centroid_arr = np.append(y_centroid_arr[1:], p_centroid[1])
+                            if count == 10:    
+                                x_centroid_avg = np.sum(x_centroid_arr) / 10
+                                y_centroid_avg = np.sum(y_centroid_arr) / 10
+                                # Calculate X position from pixel to meter
+                                x_pos_avg = (x_centroid_avg * (-0.0021)) + 0.7223
+                                # Calculate Y position from pixel to meter
+                                y_pos_avg = (y_centroid_avg * (0.0018)) - 0.7223
+                                # Reset count
+                                count = 0
+                            # Draw text
+                            cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
+                        else:
+                            cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
         
         # Display the frame
         cv2.imshow('YOLOv8', annotated_frame)
