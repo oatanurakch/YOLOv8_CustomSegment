@@ -49,7 +49,7 @@ while cap.isOpened():
     if ret:
         count_frame += 1
         # Inference
-        results = model.track(source = frame, conf = 0.7, save = False)
+        results = model.track(source = frame, conf = 0.5, save = False)
         # Plotting the result
         annotated_frame = results[0].plot()
 
