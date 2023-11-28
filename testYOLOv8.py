@@ -30,13 +30,20 @@ while cap.isOpened():
 
             # Add Point to the frame
             for r in results:
+                # Get mask
                 mask = results[0].masks.xy
+                # IDS of the object
+                ids = results[0].boxes.id.cpu().numpy().astype(int)
+                # IDs of class names
+                ids_cls = results[0].boxes.cls.numpy().astype(int)
                 for i in range(len(mask)):
                     # Point quantity
                     p_qty = len(mask[i])
                     # Store point coordinate
                     x_arr = []
                     y_arr = []
+                    # print(f'ID: {ids[i]}')
+                    # print(f'Class: {ids_cls[i]}')
                     for j in range(len(mask[i])):
                         # print(f'x: {mask[i][j][0]}, y: {mask[i][j][1]}')
                         # append x and y to array
@@ -49,6 +56,14 @@ while cap.isOpened():
                     # Draw point and text
                     cv2.putText(annotated_frame, f'{p_centroid}', (p_centroid[0] - 5, p_centroid[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
                     cv2.circle(annotated_frame, (p_centroid[0], p_centroid[1]), 1, (255, 255, 255), 2)
+                    # Calculate position of the point
+                    if ids_cls[i] == 39:
+                        # Calculate X position from pixel to meter
+                        x_pos = (p_centroid[0] * (-0.0021)) + 0.7223
+                        # Calculate Y position from pixel to meter
+                        y_pos = (p_centroid[1] * (0.0018)) - 0.7223
+                        cv2.putText(annotated_frame, f'{x_pos:.2f}, {y_pos:.2f}', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+
         
         # Display the frame
         cv2.imshow('YOLOv8', annotated_frame)
