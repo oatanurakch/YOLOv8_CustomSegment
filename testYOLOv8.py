@@ -10,10 +10,10 @@ model = yolo('yolov8s-seg.pt')
 # cap = cv2.VideoCapture(video_path)
 
 # Jetson Xavier NX with Realsense D435i
-cap = cv2.VideoCapture(4)
+# cap = cv2.VideoCapture(4)
 
 # PC or Laptop camera 
-# cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 # Variable for stored centroid
 x_centroid_arr = np.zeros(10)
@@ -34,8 +34,8 @@ y_pos_old = 0
 x_pos_new = 0
 y_pos_new = 0
 
-ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
-# ESP32_SER = Serial('COM3', 115200, timeout = 1)
+# ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
+ESP32_SER = Serial('COM3', 115200, timeout = 1)
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -44,16 +44,10 @@ while cap.isOpened():
     if ret:
         # Inference
         results = model.track(source = frame, conf = 0.7, save = False)
+        # Plotting the result
+        annotated_frame = results[0].plot()
 
-        # Check if there is any object detected
-        if not len(results[0]):
-            print('No object detected')
-            annotated_frame = frame
-
-        else:
-            # Plotting the result
-            annotated_frame = results[0].plot()
-
+        try:
             # Add Point to the frame
             for r in results:
                 # Get mask
@@ -113,6 +107,8 @@ while cap.isOpened():
                                 y_pos_old = y_pos_new
                         else:
                             cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        except:
+            pass
 
         # Display the frame
         cv2.imshow('YOLOv8', annotated_frame)
