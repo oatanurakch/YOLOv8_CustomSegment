@@ -1,6 +1,7 @@
 from ultralytics import YOLO as yolo
 import cv2
 import numpy as np
+from serial import Serial
 
 # Initialize
 model = yolo('yolov8s-seg.pt')
@@ -24,6 +25,8 @@ count = 0
 # Variable for store average centroid
 x_pos_avg = 0
 y_pos_avg = 0
+
+ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -91,7 +94,14 @@ while cap.isOpened():
                             cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
                         else:
                             cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
-        
+
+                    # Send data to ESP32
+                    try:
+                        ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
+                    except:
+                        print('Error send data to ESP32')
+
+
         # Display the frame
         cv2.imshow('YOLOv8', annotated_frame)
 
