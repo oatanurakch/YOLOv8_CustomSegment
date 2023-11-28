@@ -109,10 +109,10 @@ while cap.isOpened():
                                 count = 0
                             cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
                             # Check if position is change
-                            if (x_pos_new != x_pos_old and x_pos_new - x_pos_old < 0.02) or (y_pos_new != y_pos_old and y_pos_new - y_pos_old < 0.02):
+                            if (x_pos_new != x_pos_old and abs(x_pos_new - x_pos_old) < 0.02) or (y_pos_new != y_pos_old and abs(y_pos_new - y_pos_old) < 0.02):
                                 # Send position to ESP32
-                                ESP32_SER.write(f'{x_pos_avg:.2f},{y_pos_avg:.2f}\n'.encode())
-                                print(f'x: {x_pos_avg:.2f}, y: {y_pos_avg:.2f}')
+                                ESP32_SER.write(f'mx{x_pos_avg:.2f},y{y_pos_avg:.2f}z-1\n'.encode())
+                                print(f'mx{x_pos_avg:.2f},y{y_pos_avg:.2f}z-1\n')
                                 # Update old position
                                 x_pos_old = x_pos_new
                                 y_pos_old = y_pos_new
