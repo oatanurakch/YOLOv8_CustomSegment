@@ -98,14 +98,15 @@ while cap.isOpened():
 
             # Draw text
             if inRange:
-                cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
+                cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
                 # Send data to ESP32
                 try:
+                    print(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1')
                     ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
                 except:
                     print('Error send data to ESP32')
             else:
-                cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+                cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
 
         # Display the frame
