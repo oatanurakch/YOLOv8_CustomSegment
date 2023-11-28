@@ -26,15 +26,15 @@ count = 0
 x_pos_avg = 0
 y_pos_avg = 0
 
-ESP32_SER = Serial('/dev/ttyUSB0', 115200, timeout = 1)
+ESP32_SER = Serial('/dev/ttyUSB0', 115200)
 ESP32_SER.setDTR(False)
 ESP32_SER.setRTS(True)
+
+inRange = False
 
 while cap.isOpened():
     ret, frame = cap.read()
 
-    inRange = False
-    
     # Check if frame is not empty
     if ret:
         # Inference
