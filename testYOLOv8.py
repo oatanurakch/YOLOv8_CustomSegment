@@ -32,11 +32,13 @@ ESP32_SER.setRTS(True)
 
 while cap.isOpened():
     ret, frame = cap.read()
+
+    inRange = False
     
     # Check if frame is not empty
     if ret:
         # Inference
-        results = model.track(source = frame, conf = 0.7, save = False)
+        results = model.track(source = frame, conf = 0.6, save = False)
 
         # Check if there is any object detected
         if not len(results[0]):
@@ -92,16 +94,18 @@ while cap.isOpened():
                                 y_pos_avg = (y_centroid_avg * (0.0018)) - 0.7223
                                 # Reset count
                                 count = 0
-                            # Draw text
-                            cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
-                        else:
-                            cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+                                inRange = True
 
-                    # Send data to ESP32
-                    try:
-                        ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
-                    except:
-                        print('Error send data to ESP32')
+            # Draw text
+            if inRange:
+                cv2.putText(annotated_frame, f'{x_pos_avg:.2f}, {y_pos_avg:.2f}', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)  
+                # Send data to ESP32
+                try:
+                    ESP32_SER.write(f'mx{x_pos_avg:.2f}y{y_pos_avg:.2f}z-1\n'.encode())
+                except:
+                    print('Error send data to ESP32')
+            else:
+                cv2.putText(annotated_frame, f'Out of range', (p_centroid[0] - 5, p_centroid[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
 
 
         # Display the frame
